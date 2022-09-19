@@ -5,6 +5,38 @@
 
 int board[16];
 enum dir {UP, DOWN, LEFT, RIGHT};
+int opp[] = {DOWN, UP, RIGHT, LEFT};
+typedef struct {
+    int a[512];
+    int top;
+} stack;
+
+stack uh = {.top = -1}; // undo history
+stack rh = {.top = -1}; // redo history
+
+void push_stack(stack *s, int n){
+    s->top++;
+    s->a[s->top] = n;
+}
+
+int empty(stack *s){
+    return s->top < 0;
+}
+
+int pop_stack(stack *s){
+    if(!empty(s)){
+        int n = s->a[s->top];
+        s->top--;
+
+        return n;
+    }
+    puts("Stack is empty!");
+    exit(1);
+}
+
+void clear_stack(stack *s){
+    s->top = -1;
+}
 
 void print_board(){
     for(int y = 0; y < 4; y++){
@@ -102,10 +134,36 @@ char check_move(int d){
 void player_move(int d){
     if (check_move(d)){
         move_tile(d);
+        push_stack(&uh, d);
+        clear_stack(&rh);
         print_board();
     } else {
         puts("Illegal move!");
     }
+}
+
+void undo(){
+    if (empty(&uh)){
+        puts("Undo history is empty!");
+        return;
+    }
+    int d = pop_stack(&uh);
+    push_stack(&rh, d);
+    move_tile(opp[d]);
+    print_board();
+    return;
+}
+
+void redo(){
+    if (empty(&rh)){
+        puts("Redo history is empty!");
+        return;
+    }
+    int d = pop_stack(&rh);
+    push_stack(&uh, d);
+    move_tile(d);
+    print_board();
+    return;
 }
 
 int main() {
