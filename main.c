@@ -4,6 +4,7 @@
 #include <time.h>
 
 int board[16];
+enum dir {UP, DOWN, LEFT, RIGHT};
 
 void print_board(){
     for(int y = 0; y < 4; y++){
@@ -19,6 +20,35 @@ void print_board(){
         puts("|");
     }
     printf("+----+----+----+----+\n");
+}
+
+void swap_tiles(int a, int b){
+    int t = board[a];
+    board[a] = board[b];
+    board[b] = t;
+}
+
+void move_tile(int d){
+    int b = 0;
+    while(board[b] != 0) b++;
+    int b2 = b;
+    switch (d) {
+    case UP:
+        b2 += 4;
+        break;
+    case DOWN:
+        b2 -= 4;
+        break;
+    case LEFT:
+        b2 += 1;
+        break;
+    case RIGHT:
+        b2 -= 1;
+        break;
+    default:
+        exit(1);
+    }
+    swap_tiles(b, b2);
 }
 
 /* https://stackoverflow.com/a/6127606 */
