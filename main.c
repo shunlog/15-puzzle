@@ -108,6 +108,64 @@ static void shuffle(void *array, size_t n, size_t size) {
     }
 }
 
+void generate_board(){
+    for(int y = 0; y < 16; y++){
+        board[y] = y;
+    }
+    shuffle(board, 16, sizeof(board[0]));
+}
+
+int all(int *a, int n){
+    for(int i = 0; i < n; i++){
+        if (!a[i]) return 0;
+    }
+    return 1;
+}
+
+int swaps(){
+    int checked[16] = {0};
+    int n = 0;
+    while(!all(checked, 16)){
+        int i = 0;
+        while(checked[i]){
+          i++;
+        }
+        int cl = 0;
+        while (!checked[i]){
+            checked[i] = 1;
+            cl++;
+            i = board[i] - 1;
+            if (i == -1) i = 15;
+        }
+        n += cl - 1;
+    }
+    return n;
+}
+
+int taxicab_of_blank(){
+    int b = find_blank();
+    int y = b / 4;
+    int x = b % 4;
+    int d = 3 - x + 3 - y;
+    return d;
+}
+
+int is_valid(){
+    return !((swaps() + taxicab_of_blank()) % 2);
+}
+
+void generate_valid_board(){
+    int n = 0;
+    while(1){
+       generate_board();
+       n++;
+       if(is_valid()){
+            printf("Generated valid board in %d tries.", n);
+            return;
+       }
+    }
+}
+
 char check_move(int d){
     int b = find_blank();
     int y = b / 4;
@@ -170,16 +228,45 @@ void unknown_command(){
     puts("Unknown command!");
 }
 
+void print_menu_help(){
+    puts("Menu commands:");
+    puts("s\tStart new game");
+    puts("l\tLoad save from file");
+    puts("q\tQuit game");
+}
+
+void print_game_help(){
+    puts("Game commands:");
+    puts("u\tMove up");
+    puts("d\tMove down");
+    puts("l\tMove left");
+    puts("r\tMove right");
+    puts("a\tLet algorithm solve it");
+    puts("s\tSave game to file");
+    puts("L\tLoad game from file");
+    puts("U\tUndo");
+    puts("R\tRedo");
+    puts("n\tNew game");
+    puts("q\tQuit game");
+    puts("p\tPrint game board");
+    puts("h\tPrint this help menu");
+}
+
+void welcome(){
+    puts(" _ ____    ____                _\n/ | ___|  |  _ \\ _   _ _______| | ___\n| |___ \\  | |_) | | | |_  /_  / |/ _ \\\n| |___) | |  __/| |_| |/ / / /| |  __/\n|_|____/  |_|    \\__,_/___/___|_|\\___| ");
+    puts("Welcome to my implementation of 15 puzzle. Type \"h\" for the help menu, or \"s\" if you want to figure it out yourself.");
+}
+
 void quit_game(){
     puts("See ya!");
     exit(0);
 }
 
-int main() {
-    for(int y = 0; y < 16; y++){
-        board[y] = y;
-    }
-    shuffle(board, 16, sizeof(board[0]));
+void game_loop(){
+    /* generate_valid_board(); */
+    generate_board();
+    puts("Try to solve the puzzle in as few moves as possible!");
+    print_board();
 
     while(1){
         printf(">>> ");
@@ -202,6 +289,8 @@ int main() {
             player_move(RIGHT);
         } else if (strcmp(c,"p") == 0){
             print_board();
+        } else if (strcmp(c,"h") == 0){
+            print_game_help();
         } else if (strcmp(c,"U") == 0){
             undo();
         } else if (strcmp(c,"R") == 0){
@@ -210,6 +299,31 @@ int main() {
             quit_game();
         }
         else {
+            unknown_command();
+        }
+    }
+}
+
+int main() {
+
+    welcome();
+    while(1){
+        printf(">>> ");
+        char c[256];
+
+        if (scanf(" %255[^\n]s", c) != 1){
+            unknown_command();
+            continue;
+        };
+        if (strcmp(c,"h") == 0){
+            print_menu_help();
+        }
+        else if (strcmp(c,"s") == 0){
+            game_loop();
+        }
+        else if (strcmp(c,"q") == 0){
+            quit_game();
+        } else {
             unknown_command();
         }
     }
