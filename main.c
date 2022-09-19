@@ -7,10 +7,18 @@ int board[16];
 
 void print_board(){
     for(int y = 0; y < 4; y++){
+        printf("+----+----+----+----+\n");
         for(int x = 0; x < 4; x++){
-            printf("%d ", board[y*4+x]);
+            int n = board[y*4+x];
+            if (n == 0){
+                printf("|    ");
+            } else {
+                printf("| %2d ", n);
+            }
         }
+        puts("|");
     }
+    printf("+----+----+----+----+\n");
 }
 
 /* https://stackoverflow.com/a/6127606 */
