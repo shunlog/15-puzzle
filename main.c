@@ -166,10 +166,51 @@ void redo(){
     return;
 }
 
+void unknown_command(){
+    puts("Unknown command!");
+}
+
+void quit_game(){
+    puts("See ya!");
+    exit(0);
+}
+
 int main() {
     for(int y = 0; y < 16; y++){
         board[y] = y;
     }
     shuffle(board, 16, sizeof(board[0]));
-    print_board();
+
+    while(1){
+        printf(">>> ");
+        char c[256];
+
+        if (scanf(" %255[^\n]s", c) != 1){
+            unknown_command();
+            continue;
+        };
+        if (strcmp(c,"u") == 0){
+            player_move(UP);
+        }
+        else if (strcmp(c,"d") == 0){
+            player_move(DOWN);
+        }
+        else if (strcmp(c,"l") == 0){
+            player_move(LEFT);
+        }
+        else if (strcmp(c,"r") == 0){
+            player_move(RIGHT);
+        } else if (strcmp(c,"p") == 0){
+            print_board();
+        } else if (strcmp(c,"U") == 0){
+            undo();
+        } else if (strcmp(c,"R") == 0){
+            redo();
+        } else if (strcmp(c,"q") == 0){
+            quit_game();
+        }
+        else {
+            unknown_command();
+        }
+    }
 }
