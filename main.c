@@ -28,9 +28,14 @@ void swap_tiles(int a, int b){
     board[b] = t;
 }
 
-void move_tile(int d){
+int find_blank(){
     int b = 0;
     while(board[b] != 0) b++;
+    return b;
+}
+
+void move_tile(int d){
+    int b = find_blank();
     int b2 = b;
     switch (d) {
     case UP:
@@ -68,6 +73,38 @@ static void shuffle(void *array, size_t n, size_t size) {
             memcpy(arr + j * stride, arr + i * stride, size);
             memcpy(arr + i * stride, tmp, size);
         }
+    }
+}
+
+char check_move(int d){
+    int b = find_blank();
+    int y = b / 4;
+    int x = b % 4;
+    switch (d) {
+    case UP:
+        return y < 3;
+        break;
+    case DOWN:
+        return y > 0;
+        break;
+    case LEFT:
+        return x < 3;
+        break;
+    case RIGHT:
+        return x > 0;
+        break;
+    default:
+        exit(1);
+    }
+
+}
+
+void player_move(int d){
+    if (check_move(d)){
+        move_tile(d);
+        print_board();
+    } else {
+        puts("Illegal move!");
     }
 }
 
