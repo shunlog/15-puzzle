@@ -297,7 +297,7 @@ void print_game_help(){
     puts("L\tLoad game from file");
     puts("U\tUndo");
     puts("R\tRedo");
-    puts("n\tNew game");
+    /* puts("n\tNew game"); */
     puts("q\tQuit game");
     puts("p\tPrint game board");
     puts("P\tPrint undo/redo history");
@@ -440,8 +440,8 @@ void game_loop(){
             load();
         } else if (strcmp(c,"m") == 0){
             menu_loop();
-        } else if (strcmp(c,"n") == 0){
-            game_loop();
+        /* } else if (strcmp(c,"n") == 0){ */
+        /*     game_loop(); */
         } else if (strcmp(c,"q") == 0){
             quit_game();
         }
