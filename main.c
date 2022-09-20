@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+    char save_path[256];
 
 int board[16];
 enum dir {UP, DOWN, LEFT, RIGHT};
@@ -279,6 +280,80 @@ void print_undo_redo(){
     puts("");
 }
 
+void fprint_board(FILE* fp){
+    for (int i = 0; i < 16; i++){
+        fprintf(fp, "%d ", board[i]);
+    }
+}
+
+void fprint_stack(FILE *fp, stack *s){
+    for (int i = 0; i <= s->top; i++){
+        fprintf(fp, "%d ", s->a[i]);
+    }
+}
+
+void fprint_hist(FILE* fp){
+    fprintf(fp, "%d %d\n", uh.top + 1, rh.top + 1);
+    fprint_stack(fp, &uh);
+    fputs("\n", fp);
+    fprint_stack(fp, &rh);
+}
+
+void fload_board(FILE* fp){
+    for (int i = 0; i < 16; i++){
+        fscanf(fp, "%d", &board[i]);
+    }
+}
+
+void fload_stack(FILE *fp, stack *s, int n){
+    for (int i = 0; i < n; i++){
+        fscanf(fp, "%d ", &s->a[i]);
+    }
+}
+
+void fload_hist(FILE* fp){
+    fscanf(fp, "%d %d\n", &uh.top, &rh.top);
+           uh.top--;
+           rh.top--;
+    fload_stack(fp, &uh, uh.top+1);
+    fputs("\n", fp);
+    fload_stack(fp, &rh, rh.top+1);
+}
+
+void get_save_path(){
+    const char *homedir = getpwuid(getuid())->pw_dir;
+    const char *fname = "15_puzzle_save.txt";
+    sprintf(save_path, "%s/%s", homedir, fname);
+}
+
+void save(){
+    get_save_path();
+    FILE* fp = fopen(save_path, "w");
+    if(!fp) {
+        printf("%sCan't create save file!\n%s", KRED, KNRM);
+        return;
+    }
+    fprint_board(fp);
+    fputs("\n", fp);
+    fprint_hist(fp);
+    fputs("\n", fp);
+    fclose(fp);
+    printf("%sGame saved to %s\n%s", KGRN, save_path, KNRM);
+}
+
+void load(){
+    get_save_path();
+    FILE* fp = fopen(save_path, "r");
+    if(!fp) {
+        printf("%sCan't open save file!\n%s", KRED, KNRM);
+        return;
+    }
+    fload_board(fp);
+    fload_hist(fp);
+    printf("%sSave loaded from %s\n%s", KGRN, save_path, KNRM);
+    print_board();
+}
+
 void game_loop(){
     generate_valid_board();
     puts("Try to solve the puzzle in as few moves as possible!");
@@ -312,6 +387,10 @@ void game_loop(){
             undo();
         } else if (strcmp(c,"R") == 0){
             redo();
+        } else if (strcmp(c,"S") == 0){
+            save();
+        } else if (strcmp(c,"L") == 0){
+            load();
         } else if (strcmp(c,"q") == 0){
             quit_game();
         }
