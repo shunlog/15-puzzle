@@ -2,7 +2,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
     char save_path[256];
+
+// https://stackoverflow.com/a/27125283
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
 
 int board[16];
 enum dir {UP, DOWN, LEFT, RIGHT};
@@ -38,7 +52,7 @@ void clear_stack(stack *s){
     s->top = -1;
 }
 
-void print_stack(stack *s){
+void pretty_print_stack(stack *s){
     for (int i = 0; i <= s->top; i++){
         printf("-> %d ", s->a[i]);
     }
@@ -46,18 +60,24 @@ void print_stack(stack *s){
 
 void print_board(){
     for(int y = 0; y < 4; y++){
-        printf("+----+----+----+----+\n");
+        printf("%s+----+----+----+----+\n%s", KCYN, KNRM);
         for(int x = 0; x < 4; x++){
-            int n = board[y*4+x];
+            int i = y*4+x;
+            int n = board[i];
             if (n == 0){
-                printf("|    ");
+                printf("%s|%s    ", KCYN, KNRM);
             } else {
-                printf("| %2d ", n);
+                printf("%s|%s", KCYN, KNRM);
+                if (n == i+1){
+                    printf(" %s%2d%s ", KGRN, n, KNRM);
+                } else {
+                    printf(" %2d ", n);
+                }
             }
         }
-        puts("|");
+        printf("%s|%s\n", KCYN, KNRM);
     }
-    printf("+----+----+----+----+\n");
+    printf("%s+----+----+----+----+\n%s", KCYN, KNRM);
 }
 
 void swap_tiles(int a, int b){
@@ -204,13 +224,13 @@ void player_move(int d){
         clear_stack(&rh);
         print_board();
     } else {
-        puts("Illegal move!");
+        printf("%sIllegal move!%s\n", KRED, KNRM);
     }
 }
 
 void undo(){
     if (empty(&uh)){
-        puts("Undo history is empty!");
+        printf("%sUndo history is empty!%s\n", KRED, KNRM);
         return;
     }
     int d = pop_stack(&uh);
@@ -222,7 +242,7 @@ void undo(){
 
 void redo(){
     if (empty(&rh)){
-        puts("Redo history is empty!");
+        printf("%sRedo history is empty!%s\n", KRED, KNRM);
         return;
     }
     int d = pop_stack(&rh);
@@ -273,10 +293,10 @@ void quit_game(){
 
 void print_undo_redo(){
     printf("Undo history: ");
-    print_stack(&uh);
+    pretty_print_stack(&uh);
     puts("");
     printf("Redo history: ");
-    print_stack(&rh);
+    pretty_print_stack(&rh);
     puts("");
 }
 
