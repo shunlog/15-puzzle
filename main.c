@@ -38,6 +38,12 @@ void clear_stack(stack *s){
     s->top = -1;
 }
 
+void print_stack(stack *s){
+    for (int i = 0; i <= s->top; i++){
+        printf("-> %d ", s->a[i]);
+    }
+}
+
 void print_board(){
     for(int y = 0; y < 4; y++){
         printf("+----+----+----+----+\n");
@@ -254,6 +260,7 @@ void print_game_help(){
     puts("n\tNew game");
     puts("q\tQuit game");
     puts("p\tPrint game board");
+    puts("P\tPrint undo/redo history");
     puts("h\tPrint this help menu");
 }
 
@@ -265,6 +272,15 @@ void welcome(){
 void quit_game(){
     puts("See ya!");
     exit(0);
+}
+
+void print_undo_redo(){
+    printf("Undo history: ");
+    print_stack(&uh);
+    puts("");
+    printf("Redo history: ");
+    print_stack(&rh);
+    puts("");
 }
 
 void game_loop(){
@@ -293,6 +309,8 @@ void game_loop(){
             player_move(RIGHT);
         } else if (strcmp(c,"p") == 0){
             print_board();
+        } else if (strcmp(c,"P") == 0){
+            print_undo_redo();
         } else if (strcmp(c,"h") == 0){
             print_game_help();
         } else if (strcmp(c,"U") == 0){
