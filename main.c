@@ -93,7 +93,6 @@ static void shuffle(void *array, size_t n, size_t size) {
     char tmp[size];
     char *arr = array;
     size_t stride = size * sizeof(char);
-    srand(time(NULL));
 
     if (n > 1) {
         size_t i;
@@ -305,7 +304,7 @@ void game_loop(){
 }
 
 int main() {
-
+    srand(clock());
     welcome();
     while(1){
         printf(">>> ");
