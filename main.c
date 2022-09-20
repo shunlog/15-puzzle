@@ -244,8 +244,7 @@ void player_move(int d){
         if (solved()){
             int moves = uh.top + 1;
             printf("%sFinally! You solved the board in %d moves.%s\
-                Go ahead, try again! Don't forget\
-                to save your game if it's worth it.",
+\nGo ahead, try again! Don't forget to save your game if it's worth it.\n",
                    KGRN, moves, KNRM);
         }
     } else {
