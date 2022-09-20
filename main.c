@@ -122,19 +122,21 @@ int all(int *a, int n){
 }
 
 int swaps(){
+    // computes number of swaps needed to
+    // obtain current permutation from
+    // sorted list
     int checked[16] = {0};
     int n = 0;
-    while(!all(checked, 16)){
+    while(!all(checked, 15)){
         int i = 0;
         while(checked[i]){
-          i++;
+            i++;
         }
         int cl = 0;
         while (!checked[i]){
             checked[i] = 1;
             cl++;
-            i = board[i] - 1;
-            if (i == -1) i = 15;
+            i = board[i];
         }
         n += cl - 1;
     }
@@ -150,18 +152,22 @@ int taxicab_of_blank(){
 }
 
 int is_valid(){
-    return !((swaps() + taxicab_of_blank()) % 2);
+    int s = swaps();
+    // swap the 0 15 places to the right
+    s += 15;
+    int td = taxicab_of_blank();
+    return !((s + td) % 2);
 }
 
 void generate_valid_board(){
     int n = 0;
     while(1){
-       generate_board();
-       n++;
-       if(is_valid()){
-            printf("Generated valid board in %d tries.", n);
+        generate_board();
+        n++;
+        if(is_valid()){
+            printf("Generated valid board in %d tries.\n", n);
             return;
-       }
+        }
     }
 }
 
@@ -262,8 +268,7 @@ void quit_game(){
 }
 
 void game_loop(){
-    /* generate_valid_board(); */
-    generate_board();
+    generate_valid_board();
     puts("Try to solve the puzzle in as few moves as possible!");
     print_board();
 
