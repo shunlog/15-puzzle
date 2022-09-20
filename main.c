@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 
-    char save_path[256];
+char save_path[256];
 
 // https://stackoverflow.com/a/27125283
 #define KNRM  "\x1B[0m"
@@ -138,6 +138,14 @@ void generate_board(){
     shuffle(board, 16, sizeof(board[0]));
 }
 
+void winning_board(){
+    for(int y = 0; y < 14; y++){
+        board[y] = y+1;
+    }
+    board[14] = 0;
+    board[15] = 15;
+}
+
 int all(int *a, int n){
     for(int i = 0; i < n; i++){
         if (!a[i]) return 0;
@@ -217,12 +225,29 @@ char check_move(int d){
     }
 }
 
+int solved(){
+    for (int i = 0; i < 15; i++){
+        if (board[i] != i+1){
+            return 0;
+        }
+    }
+    if (board[15] != 0) return 0;
+    return 1;
+}
+
 void player_move(int d){
     if (check_move(d)){
         move_tile(d);
         push_stack(&uh, d);
         clear_stack(&rh);
         print_board();
+        if (solved()){
+            int moves = uh.top + 1;
+            printf("%sFinally! You solved the board in %d moves.%s\
+                Go ahead, try again! Don't forget\
+                to save your game if it's worth it.",
+                   KGRN, moves, KNRM);
+        }
     } else {
         printf("%sIllegal move!%s\n", KRED, KNRM);
     }
@@ -259,7 +284,6 @@ void unknown_command(){
 void print_menu_help(){
     puts("Menu commands:");
     puts("s\tStart new game");
-    puts("l\tLoad save from file");
     puts("q\tQuit game");
 }
 
@@ -269,7 +293,7 @@ void print_game_help(){
     puts("d\tMove down");
     puts("l\tMove left");
     puts("r\tMove right");
-    puts("a\tLet algorithm solve it");
+    /* puts("a\tLet algorithm solve it"); */
     puts("s\tSave game to file");
     puts("L\tLoad game from file");
     puts("U\tUndo");
@@ -283,7 +307,7 @@ void print_game_help(){
 
 void welcome(){
     puts(" _ ____    ____                _\n/ | ___|  |  _ \\ _   _ _______| | ___\n| |___ \\  | |_) | | | |_  /_  / |/ _ \\\n| |___) | |  __/| |_| |/ / / /| |  __/\n|_|____/  |_|    \\__,_/___/___|_|\\___| ");
-    puts("Welcome to my implementation of 15 puzzle. Type \"h\" for the help menu, or \"s\" if you want to figure it out yourself.");
+    puts("Welcome to my implementation of 15 puzzle. \nType \"h\" for the help menu, or \"s\" if you want to figure it out yourself.");
 }
 
 void quit_game(){
@@ -333,8 +357,8 @@ void fload_stack(FILE *fp, stack *s, int n){
 
 void fload_hist(FILE* fp){
     fscanf(fp, "%d %d\n", &uh.top, &rh.top);
-           uh.top--;
-           rh.top--;
+    uh.top--;
+    rh.top--;
     fload_stack(fp, &uh, uh.top+1);
     fputs("\n", fp);
     fload_stack(fp, &rh, rh.top+1);
@@ -374,7 +398,11 @@ void load(){
     print_board();
 }
 
+void menu_loop();
+
 void game_loop(){
+    clear_stack(&uh);
+    clear_stack(&rh);
     generate_valid_board();
     puts("Try to solve the puzzle in as few moves as possible!");
     print_board();
@@ -411,6 +439,10 @@ void game_loop(){
             save();
         } else if (strcmp(c,"L") == 0){
             load();
+        } else if (strcmp(c,"m") == 0){
+            menu_loop();
+        } else if (strcmp(c,"n") == 0){
+            game_loop();
         } else if (strcmp(c,"q") == 0){
             quit_game();
         }
@@ -420,8 +452,7 @@ void game_loop(){
     }
 }
 
-int main() {
-    srand(clock());
+void menu_loop(){
     welcome();
     while(1){
         printf(">>> ");
@@ -442,4 +473,9 @@ int main() {
             unknown_command();
         }
     }
+}
+
+int main() {
+    srand(time(NULL));
+    menu_loop();
 }
